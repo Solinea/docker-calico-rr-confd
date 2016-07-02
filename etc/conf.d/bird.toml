@@ -1,0 +1,10 @@
+[template]
+prefix = "/calico/bgp/v1"
+src = "bird.cfg.tmpl"
+dest = "/etc/bird.conf"
+mode = "0644"
+keys = [
+  "/"
+]
+check_cmd = "/usr/sbin/birdcl configure check {{.src}}"
+reload_cmd = "/usr/sbin/birdcl configure {{.src}}"

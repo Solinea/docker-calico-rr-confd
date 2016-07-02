@@ -1,0 +1,51 @@
+# Override router ID
+#router id {{getenv "IP"}};
+router id 192.168.65.2;
+
+filter import_kernel {
+if ( net != 0.0.0.0/0 ) then {
+   accept;
+   }
+reject;
+}
+
+# Turn on global debugging of all protocols
+debug protocols all;
+
+# This pseudo-protocol watches all interface up/down events.
+protocol device {
+  scan time 2;		# Scan interfaces every 2 seconds
+}
+
+# Static routes (again, there can be multiple instances, so that you
+# can disable/enable various groups of static routes on the fly).
+protocol static {
+  enabled;
+  preference 1000;	# Default preference of routes
+  # static routes for Cluster IPs
+  route 10.201.0.0/24 via 198.168.3.2;
+  route 10.201.0.0/24 via 192.168.3.3;
+}
+
+# Template for all BGP clients
+template bgp bgp_template {
+  debug all;
+  description "Connection to BGP peer";
+  multihop;
+  import all;        # Import all routes, since we don't know what the upstream
+                     # topology is and therefore have to trust the ToR/RR.
+  export all;        # Export all.
+  #source address {{getenv "IP"}};  # The local address we use for the TCP connection
+  source address 192.168.65.2;  # The local address we use for the TCP connection
+  graceful restart;  # See comment in kernel section about graceful restart.
+}
+
+protocol bgp asdfb from bgp_template {
+  local as 65001;
+  neighbor 198.168.3.2 as 65001;
+  multihop;
+  rr client;
+  graceful restart;
+  import all;
+  export all;
+}
