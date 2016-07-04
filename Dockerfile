@@ -1,4 +1,4 @@
-FROM solinea/bird:1.5.0-r2
+FROM solinea/bird:1.5.0-r2-1
 
 #ENV CONFDVER v0.11.0
 ENV CONFDVER master
@@ -36,5 +36,8 @@ RUN confd -version
 COPY etc/confd.toml /etc/confd/
 COPY etc/conf.d/bird.toml /etc/confd/conf.d/
 COPY etc/templates/bird.conf.tmpl /etc/confd/templates/
+
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 CMD ["/usr/bin/confd"]
