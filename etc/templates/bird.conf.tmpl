@@ -77,4 +77,16 @@ protocol bgp Node_{{$id}} from bgp_template {
 {{end}}
 {{end}}
 
+
+# ------------- RR as static routes for Cluster IPs -------------
+protocol static {
+  enabled;
+  preference 1000;	# Default preference of routes
+  # static routes for Cluster IPs
+  {{range $cnode := lsdir "/host"}}
+  {{$cnode_ip_key := printf "/host/%s/ip_addr_v4" $cnode}}{{$cnode_ip := getv $cnode_ip_key}}
+  route {{getv /global/service_cidr}} via {{$cnode_ip}};
+  {{end}}
+}
+
 {{end}}
