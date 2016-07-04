@@ -2,7 +2,7 @@
 set -e
 
 # wait for bird control socket
-while [ ! -f /srv/bird/bird.ctl ]; do
+until /usr/sbin/birdcl -s /srv/bird/bird.ctl show status; do
   echo "Waiting for BIRD to come online..."
   sleep 5
 done

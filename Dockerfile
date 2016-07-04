@@ -1,4 +1,4 @@
-FROM solinea/bird:1.5.0-r2-1
+FROM solinea/bird:1.5.0-r2-2
 
 #ENV CONFDVER v0.11.0
 ENV CONFDVER master
