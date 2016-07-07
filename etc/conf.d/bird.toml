@@ -3,8 +3,6 @@ prefix = "/calico/bgp/v1"
 src = "bird.conf.tmpl"
 dest = "/srv/bird/bird.conf"
 mode = "0644"
-keys = [
-  "/"
-]
-check_cmd  = "/usr/sbin/birdcl -s /srv/bird/bird.ctl configure check {{.src}}"
-reload_cmd = "/usr/sbin/birdcl -s /srv/bird/bird.ctl configure {{.src}}"
+keys = ["/"]
+check_cmd  = "/usr/sbin/birdcl -s /srv/bird/bird.ctl configure check"
+reload_cmd = "/usr/sbin/birdcl -s /srv/bird/bird.ctl configure"

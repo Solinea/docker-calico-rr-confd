@@ -6,6 +6,13 @@ protocol device {
   scan time 2;    # Scan interfaces every 2 seconds
 }
 
+# Sync routing table with the kernel
+protocol kernel {
+  persist;      # Don't remove routes on bird shutdown
+  scan time 20; # Scan kernel routing table every 20 seconds
+  export all;   # Default is export none
+}
+
 # Template for all BGP clients
 template bgp bgp_template {
   debug all;
@@ -78,15 +85,19 @@ protocol bgp Node_{{$id}} from bgp_template {
 {{end}}
 
 
-# ------------- RR as static routes for Cluster IPs -------------
+# ------------- RR as static routes for Service IPs -------------
+{{if getv "/global/service_cidr"}}
+# This RR configured static routes for Service IPs {{getv "/global/service_cidr"}}
 protocol static {
-  enabled;
   preference 1000;	# Default preference of routes
-  # static routes for Cluster IPs
-  {{range $cnode := lsdir "/host"}}
-  {{$cnode_ip_key := printf "/host/%s/ip_addr_v4" $cnode}}{{$cnode_ip := getv $cnode_ip_key}}
-  route {{getv "/cluster/service_cidr"}} via {{$cnode_ip}};
-  {{end}}
+  route {{getv "/cluster/service_cidr"}} multipath
+{{range $cnode := lsdir "/host"}}
+{{$cnode_ip_key := printf "/host/%s/ip_addr_v4" $cnode}}{{$cnode_ip := getv $cnode_ip_key}}
+    # Multipath route for Calico node {{$cnode}}
+    via {{$cnode_ip}}{{end}};
+{{end}}
 }
+{{end}}
+
 
 {{end}}

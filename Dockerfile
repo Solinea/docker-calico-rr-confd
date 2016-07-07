@@ -1,12 +1,12 @@
-FROM solinea/bird:1.5.0-r2-2
+FROM solinea/bird:1.5.0-r2-5
 
-#ENV CONFDVER v0.11.0
-ENV CONFDVER master
+# should match tag, but remove 'v' prefix
+ARG CONFDVER=0.12.0-alpha3
 
-RUN set -ex \
+RUN set -exo pipefail \
   && export GOPATH=/go \
   && export GO15VENDOREXPERIMENT=1 \
-  && export CONFDFILE="${CONFDVER}.zip" \
+  && export CONFDFILE="v${CONFDVER}.zip" \
   && export CONFDURL="https://github.com/kelseyhightower/confd/archive" \
   && export SRCPATH="$GOPATH/src/github.com/kelseyhightower" \
   && export TESTREPO="http://dl-4.alpinelinux.org/alpine/edge/testing" \
@@ -24,14 +24,10 @@ RUN set -ex \
   && mv "confd-$CONFDVER" "$SRCPATH/confd" \
   \
   && cd "$SRCPATH/confd" \
-  && mkdir -p bin \
   && go build -o /usr/bin/confd . \
   \
-  && rm -rf "$GOPATH" /confd-master /master.zip \
+  && rm -rf "$GOPATH" \
   && apk del .build-deps
-
-# test
-RUN confd -version
 
 COPY etc/confd.toml /etc/confd/
 COPY etc/conf.d/bird.toml /etc/confd/conf.d/
